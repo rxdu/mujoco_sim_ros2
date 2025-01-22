@@ -47,6 +47,7 @@ find_package(rclcpp REQUIRED)
 find_package(pluginlib REQUIRED)
 
 add_executable(mujoco_sim
+    src/plugin_support/plugin_support.cpp
     src/glfw_adapter.cc
     src/glfw_dispatch.cc
     src/platform_ui_adapter.cc
@@ -56,7 +57,7 @@ target_link_libraries(mujoco_sim PUBLIC mujoco::mujoco glfw lodepng Threads::Thr
 ament_target_dependencies(mujoco_sim PUBLIC rclcpp pluginlib)
 target_include_directories(mujoco_sim PUBLIC
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
-    "$<INSTALL_INTERFACE:include/${PROJECT_NAME}>")
+    "$<INSTALL_INTERFACE:include/${PROJECT_NAME}>" PRIVATE src)
 
 if (BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
@@ -69,6 +70,10 @@ if (BUILD_TESTING)
   set(ament_cmake_cpplint_FOUND TRUE)
   ament_lint_auto_find_test_dependencies()
 endif ()
+
+install(
+    DIRECTORY include/
+    DESTINATION include/${PROJECT_NAME})
 
 install(TARGETS mujoco_sim
     DESTINATION lib/${PROJECT_NAME})
