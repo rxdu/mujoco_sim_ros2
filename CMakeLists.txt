@@ -45,6 +45,13 @@ find_package(Threads REQUIRED)
 
 find_package(rclcpp REQUIRED)
 find_package(pluginlib REQUIRED)
+find_package(controller_manager REQUIRED)
+find_package(ament_index_cpp REQUIRED)
+
+add_library(${PROJECT_NAME} INTERFACE)
+target_include_directories(${PROJECT_NAME} INTERFACE
+    "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
+    "$<INSTALL_INTERFACE:include/${PROJECT_NAME}>")
 
 add_executable(mujoco_sim
     src/glfw_adapter.cc
@@ -53,10 +60,10 @@ add_executable(mujoco_sim
     src/simulate.cc
     src/main.cc)
 target_link_libraries(mujoco_sim PUBLIC mujoco::mujoco glfw lodepng Threads::Threads)
-ament_target_dependencies(mujoco_sim PUBLIC rclcpp pluginlib)
+ament_target_dependencies(mujoco_sim PUBLIC rclcpp pluginlib controller_manager)
 target_include_directories(mujoco_sim PUBLIC
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
-    "$<INSTALL_INTERFACE:include/${PROJECT_NAME}>")
+    "$<INSTALL_INTERFACE:include/${PROJECT_NAME}>" PRIVATE src)
 
 if (BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
@@ -70,7 +77,19 @@ if (BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
 endif ()
 
+install(TARGETS ${PROJECT_NAME}
+    EXPORT export_${PROJECT_NAME}
+    LIBRARY DESTINATION lib
+    ARCHIVE DESTINATION lib
+    RUNTIME DESTINATION bin)
+
+install(DIRECTORY include/
+    DESTINATION include/${PROJECT_NAME})
+
 install(TARGETS mujoco_sim
     DESTINATION lib/${PROJECT_NAME})
+
+ament_export_targets(export_${PROJECT_NAME} HAS_LIBRARY_TARGET)
+ament_export_dependencies(rclcpp pluginlib mujoco)
 
 ament_package()
