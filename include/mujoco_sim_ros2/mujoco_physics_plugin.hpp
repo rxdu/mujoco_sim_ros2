@@ -1,4 +1,4 @@
-/* 
+/*
  * @file mujoco_physics_plugin.hpp
  * @date 1/22/25
  * @brief
@@ -18,7 +18,8 @@ public:
   virtual ~MujocoPhysicsPlugin() = default;
 
   // interface
-  virtual void Configure(rclcpp::Node::SharedPtr & node, rclcpp::NodeOptions cm_node_option,
+  virtual void Configure(rclcpp::Node::SharedPtr & node,
+                         rclcpp::NodeOptions cm_node_option,
                          mjModel *model, mjData *data) = 0;
   virtual void Reset(mjModel *model, mjData *data) = 0;
   virtual void PreUpdate(mjModel *model, mjData *data) {};
