@@ -45,6 +45,7 @@ find_package(Threads REQUIRED)
 
 find_package(rclcpp REQUIRED)
 find_package(pluginlib REQUIRED)
+find_package(ament_index_cpp REQUIRED)
 
 add_library(${PROJECT_NAME} INTERFACE)
 target_include_directories(${PROJECT_NAME} INTERFACE

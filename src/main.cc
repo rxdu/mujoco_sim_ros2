@@ -25,6 +25,9 @@
 #include <string>
 #include <thread>
 
+#include <rclcpp/rclcpp.hpp>
+#include <ament_index_cpp/get_package_share_directory.hpp>
+
 #include <mujoco/mujoco.h>
 #include "glfw_adapter.h"
 #include "simulate.h"
@@ -492,6 +495,37 @@ int main(int argc, char** argv) {
     mju_error("Headers and library have different versions");
   }
 
+  // set up ros node
+  rclcpp::init(argc, argv);
+  std::shared_ptr<rclcpp::Node> node = rclcpp::Node::make_shared(
+      "mujoco_sim_ros2_node",
+      rclcpp::NodeOptions().automatically_declare_parameters_from_overrides(
+          true));
+
+  std::string model_pkg =
+      node->get_parameter("model_package").get_parameter_value().get<std::string>();
+  std::string model_file =
+      node->get_parameter("model_file").get_parameter_value().get<std::string>();
+
+  std::string package_share_path;
+  try {
+    package_share_path =
+        ament_index_cpp::get_package_share_directory(model_pkg);
+    // std::cout << "Shared folder path of package '" << model_pkg
+    //           << "': " << package_share_path << std::endl;
+  } catch (const std::exception &e) {
+    std::cerr << "Error: Unable to find package '" << model_pkg
+              << "'. Ensure it is installed and sourced." << std::endl;
+    return -1;
+  }
+  model_file = package_share_path + "/" + model_file;
+
+  std::cout << "========================================" << std::endl;
+  std::cout << "Loaded ROS parameters:" << std::endl;
+  std::cout << "model package: " << model_pkg << std::endl;
+  std::cout << "model file: " << model_file << std::endl;
+  std::cout << "========================================" << std::endl;
+
   // scan for libraries in the plugin directory to load additional plugins
   scanPluginLibraries();
 
@@ -510,13 +544,13 @@ int main(int argc, char** argv) {
       &cam, &opt, &pert, /* is_passive = */ false
   );
 
-  const char* filename = nullptr;
-  if (argc >  1) {
-    filename = argv[1];
-  }
+  // const char* filename = nullptr;
+  // if (argc >  1) {
+  //   filename = argv[1];
+  // }
 
   // start physics thread
-  std::thread physicsthreadhandle(&PhysicsThread, sim.get(), filename);
+  std::thread physicsthreadhandle(&PhysicsThread, sim.get(), model_file.c_str());
 
   // start simulation UI loop (blocking call)
   sim->RenderLoop();
