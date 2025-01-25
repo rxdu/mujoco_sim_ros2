@@ -45,6 +45,7 @@ find_package(Threads REQUIRED)
 
 find_package(rclcpp REQUIRED)
 find_package(pluginlib REQUIRED)
+find_package(controller_manager REQUIRED)
 find_package(ament_index_cpp REQUIRED)
 
 add_library(${PROJECT_NAME} INTERFACE)
@@ -60,7 +61,7 @@ add_executable(mujoco_sim
     src/simulate.cc
     src/main.cc)
 target_link_libraries(mujoco_sim PUBLIC mujoco::mujoco glfw lodepng Threads::Threads)
-ament_target_dependencies(mujoco_sim PUBLIC rclcpp pluginlib)
+ament_target_dependencies(mujoco_sim PUBLIC rclcpp pluginlib controller_manager)
 target_include_directories(mujoco_sim PUBLIC
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
     "$<INSTALL_INTERFACE:include/${PROJECT_NAME}>" PRIVATE src)

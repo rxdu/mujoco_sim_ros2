@@ -26,6 +26,7 @@
 #include <thread>
 
 #include <rclcpp/rclcpp.hpp>
+#include <controller_manager/controller_manager.hpp>
 #include <pluginlib/class_loader.hpp>
 #include <ament_index_cpp/get_package_share_directory.hpp>
 
@@ -405,7 +406,16 @@ void PhysicsLoop(mj::Simulate& sim,
               sim.InjectNoise();
 
               // call mj_step
-              mj_step(m, d);
+              for (auto& plugin : plugins) {
+                plugin->PreUpdate(m, d);
+              }
+              // mj_step(m, d);
+              mj_step1(m, d);
+              for (auto& plugin : plugins) {
+                plugin->Update(m, d);
+              }
+              mj_step2(m, d);
+
               const char* message = Diverged(m->opt.disableflags, d);
               if (message) {
                 sim.run = 0;
@@ -534,13 +544,22 @@ int main(int argc, char** argv) {
     std::exit(0);
   });
 
-  // set up ros node
+  //--------------------- set up ros node ---------------------//
   rclcpp::init(argc, argv);
   std::shared_ptr<rclcpp::Node> node = rclcpp::Node::make_shared(
-      "mujoco_sim_ros2_node",
-      rclcpp::NodeOptions().automatically_declare_parameters_from_overrides(
-          true));
+      "mujoco_sim_ros2_node", rclcpp::NodeOptions().automatically_declare_parameters_from_overrides(true));
 
+  // get the ros arg, mainly for getting --param-file for cm
+  rclcpp::NodeOptions cm_node_options = controller_manager::get_cm_node_options();
+  std::vector<std::string> node_arguments = cm_node_options.arguments();
+  for(int i = 1; i < argc; ++i)
+  {
+    if(node_arguments.empty() && std::string(argv[i]) != "--ros-args") continue;
+    node_arguments.emplace_back(argv[i]);
+  }
+  cm_node_options.arguments(node_arguments);
+
+  // get parameters
   std::string model_pkg =
       node->get_parameter("model_package").get_parameter_value().get<std::string>();
   std::string model_file =
@@ -591,7 +610,7 @@ int main(int argc, char** argv) {
 
   // start physics thread
   std::thread physicsthreadhandle(&PhysicsThread, sim.get(),
-  node, rclcpp::NodeOptions{}, model_file.c_str(), physics_plugins);
+  node, cm_node_options, model_file.c_str(), physics_plugins);
 
   // start simulation UI loop (blocking call)
   sim->RenderLoop();
