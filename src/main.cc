@@ -406,15 +406,19 @@ void PhysicsLoop(mj::Simulate& sim,
               sim.InjectNoise();
 
               // call mj_step
-              for (auto& plugin : plugins) {
-                plugin->PreUpdate(m, d);
+              if (plugins.empty()) {
+                mj_step(m, d);
               }
-              // mj_step(m, d);
-              mj_step1(m, d);
-              for (auto& plugin : plugins) {
-                plugin->Update(m, d);
+              else {
+                for (auto& plugin : plugins) {
+                  plugin->PreUpdate(m, d);
+                }
+                mj_step1(m, d);
+                for (auto& plugin : plugins) {
+                  plugin->Update(m, d);
+                }
+                mj_step2(m, d);
               }
-              mj_step2(m, d);
 
               const char* message = Diverged(m->opt.disableflags, d);
               if (message) {
@@ -547,7 +551,7 @@ int main(int argc, char** argv) {
   //--------------------- set up ros node ---------------------//
   rclcpp::init(argc, argv);
   std::shared_ptr<rclcpp::Node> node = rclcpp::Node::make_shared(
-      "mujoco_sim_ros2_node", rclcpp::NodeOptions().automatically_declare_parameters_from_overrides(true));
+      "mujoco_sim_ros2_node");
 
   // get the ros arg, mainly for getting --param-file for cm
   rclcpp::NodeOptions cm_node_options = controller_manager::get_cm_node_options();
@@ -558,6 +562,11 @@ int main(int argc, char** argv) {
     node_arguments.emplace_back(argv[i]);
   }
   cm_node_options.arguments(node_arguments);
+
+  // declare parameters
+  node->declare_parameter("model_package", "");
+  node->declare_parameter("model_file", "");
+  node->declare_parameter("physics_plugins", std::vector<std::string>());
 
   // get parameters
   std::string model_pkg =
@@ -585,6 +594,9 @@ int main(int argc, char** argv) {
   std::cout << "model package: " << model_pkg << std::endl;
   std::cout << "model file: " << model_file << std::endl;
   std::cout << "physics plugins: " << std::endl;
+  if (physics_plugins.empty()) {
+    std::cout << "  - none" << std::endl;
+  }
   for (const auto &plugin : physics_plugins) {
     std::cout << "  - " << plugin << std::endl;
   }
