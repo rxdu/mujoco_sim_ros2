@@ -54,7 +54,6 @@ target_include_directories(${PROJECT_NAME} INTERFACE
     "$<INSTALL_INTERFACE:include/${PROJECT_NAME}>")
 
 add_executable(mujoco_sim
-    src/plugin_support/plugin_support.cpp
     src/glfw_adapter.cc
     src/glfw_dispatch.cc
     src/platform_ui_adapter.cc
