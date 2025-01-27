@@ -8,7 +8,7 @@ plugin support, [mujoco_ros2_control](https://github.com/rxdu/mujoco_ros2_contro
 control interface of the simulated robot and sensors with the ros2_control framework.
 
 You can use this package together with the [mujoco_ros2_control](https://github.com/rxdu/mujoco_ros2_control) package to
-get a similar setup as the [ros2_control](https://github.com/ros-controls/gz_ros2_control) package for Gazebo.
+get a similar setup as the [gz_ros2_control](https://github.com/ros-controls/gz_ros2_control) package for Gazebo.
 
 The following environment and software versions are supported and regularly tested:
 
