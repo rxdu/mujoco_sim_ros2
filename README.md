@@ -1,5 +1,7 @@
 # Mujoco Simulate App with ROS2 Integration
 
+![CI](https://github.com/rxdu/mujoco_sim_ros2/actions/workflows/default.yaml/badge.svg)
+
 This package utilizes the [pluginlib](https://github.com/ros/pluginlib) to make the [
 `simulate`](https://github.com/google-deepmind/mujoco/tree/main/simulate) app from mujoco easily extendable. With this
 plugin support, [mujoco_ros2_control](https://github.com/rxdu/mujoco_ros2_control) is integrated to enable a flexible
@@ -7,6 +9,12 @@ control interface of the simulated robot and sensors with the ros2_control frame
 
 You can use this package together with the [mujoco_ros2_control](https://github.com/rxdu/mujoco_ros2_control) package to
 get a similar setup as the [ros2_control](https://github.com/ros-controls/gz_ros2_control) package for Gazebo.
+
+The following environment and software versions are supported and regularly tested:
+
+* Ubuntu 24.04
+* ROS2 Jazzy
+* Mujoco 3.2.7
 
 ## Build the packages
 
