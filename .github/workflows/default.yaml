@@ -32,6 +32,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
+          sudo apt-get install -y libglfw3-dev libxinerama-dev libxcursor-dev libxi-dev
           sudo apt-get install -y ros-jazzy-ros2-control ros-jazzy-ros2-controllers
       - name: Additional ROS dependencies
         run: |
