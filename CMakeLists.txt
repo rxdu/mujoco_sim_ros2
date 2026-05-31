@@ -47,9 +47,13 @@ find_package(rclcpp REQUIRED)
 find_package(pluginlib REQUIRED)
 find_package(controller_manager REQUIRED)
 find_package(ament_index_cpp REQUIRED)
-# System tinyxml2 (the same one ros2_control's hardware_interface links). See the
-# tinyxml2 note on the mujoco_sim link step below for why this is required.
-find_package(tinyxml2 REQUIRED)
+# tinyxml2 (the same one ros2_control's hardware_interface links). Discover it
+# through the ROS tinyxml2_vendor package so it works across distros: Ubuntu
+# 24.04 ships tinyxml2's CMake config, but 22.04 (Humble) does not. tinyxml2_vendor
+# prepends a FindTinyXML2 module and ensures the tinyxml2::tinyxml2 imported
+# target (used on the mujoco_sim link step below) exists on both.
+find_package(tinyxml2_vendor REQUIRED)
+find_package(TinyXML2 REQUIRED)
 
 add_library(${PROJECT_NAME} INTERFACE)
 target_include_directories(${PROJECT_NAME} INTERFACE
