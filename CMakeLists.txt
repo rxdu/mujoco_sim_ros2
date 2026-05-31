@@ -47,6 +47,9 @@ find_package(rclcpp REQUIRED)
 find_package(pluginlib REQUIRED)
 find_package(controller_manager REQUIRED)
 find_package(ament_index_cpp REQUIRED)
+# System tinyxml2 (the same one ros2_control's hardware_interface links). See the
+# tinyxml2 note on the mujoco_sim link step below for why this is required.
+find_package(tinyxml2 REQUIRED)
 
 add_library(${PROJECT_NAME} INTERFACE)
 target_include_directories(${PROJECT_NAME} INTERFACE
@@ -60,6 +63,17 @@ add_executable(mujoco_sim
     src/simulate.cc
     src/main.cc)
 target_link_libraries(mujoco_sim PUBLIC mujoco::mujoco glfw lodepng Threads::Threads)
+# tinyxml2 ODR fix: libmujoco statically bundles tinyxml2 and exports its symbols, while
+# ros2_control's libhardware_interface uses the system libtinyxml2. Loading a ros2_control
+# plugin then makes hardware_interface's tinyxml2 objects bind to libmujoco's copy (different
+# ABI), corrupting the heap (crash: "free(): invalid pointer" in XMLDocument's dtor). Force
+# the system libtinyxml2 to be an early DT_NEEDED of mujoco_sim so it wins symbol resolution
+# in the global scope and every tinyxml2 reference resolves to a single shared copy.
+# --no-as-needed is required because mujoco_sim has no direct tinyxml2 references and the
+# entry would otherwise be stripped; the flag + library path are passed as one -Wl token so
+# the toolchain cannot reorder them.
+target_link_options(mujoco_sim PRIVATE
+    "-Wl,--no-as-needed,$<TARGET_FILE:tinyxml2::tinyxml2>,--as-needed")
 ament_target_dependencies(mujoco_sim PUBLIC rclcpp pluginlib controller_manager)
 target_include_directories(mujoco_sim PUBLIC
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"

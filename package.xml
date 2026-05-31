@@ -16,6 +16,9 @@
   <depend>pluginlib</depend>
   <depend>controller_manager</depend>
   <depend>ament_index_cpp</depend>
+  <!-- Link the same tinyxml2 as ros2_control to avoid an ODR clash with libmujoco's
+       bundled copy when a ros2_control plugin is loaded (see CMakeLists.txt). -->
+  <depend>tinyxml2_vendor</depend>
 
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>
