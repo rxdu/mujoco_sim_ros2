@@ -32,7 +32,12 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
+          # X11 backend libs (GLFW)
           sudo apt-get install -y libglfw3-dev libxinerama-dev libxcursor-dev libxi-dev
+          # Wayland backend libs: MuJoCo 3.9.0 bundles GLFW 3.4, which builds the
+          # Wayland backend by default on Linux (needs wayland + xkbcommon dev libs
+          # and wayland-scanner/protocols at build time).
+          sudo apt-get install -y libwayland-dev libwayland-bin wayland-protocols libxkbcommon-dev
           sudo apt-get install -y ros-jazzy-ros2-control ros-jazzy-ros2-controllers
       - name: Additional ROS dependencies
         run: |
