@@ -8,7 +8,7 @@ The following environment and software versions are supported and regularly test
 
 * Ubuntu 24.04
 * ROS2 Jazzy
-* Mujoco 3.3.0
+* Mujoco 3.9.0
 
 Notes on design and maintenance considerations of this package:
 
@@ -24,7 +24,7 @@ demonstrates how to start the simulation as well as the ros2 controllers.
 
 ```bash
 cd <colcon-ws>/src
-git clone -b 3.3.0 https://github.com/google-deepmind/mujoco.git
+git clone -b 3.9.0 https://github.com/google-deepmind/mujoco.git
 git clone https://github.com/rxdu/mujoco_sim_ros2.git
 git clone https://github.com/rxdu/mujoco_ros2_control.git
 git clone https://github.com/rxdu/mujoco_demo_robot.git

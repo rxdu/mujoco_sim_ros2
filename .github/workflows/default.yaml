@@ -26,7 +26,7 @@ jobs:
       - name: Clone additional repositories
         run: |
           cd ${GITHUB_WORKSPACE}/colcon_ws
-          git clone -b 3.3.0 https://github.com/google-deepmind/mujoco.git
+          git clone -b 3.9.0 https://github.com/google-deepmind/mujoco.git
           git clone https://github.com/rxdu/mujoco_ros2_control.git
           git clone https://github.com/rxdu/mujoco_demo_robot.git
       - name: Install dependencies
